@@ -82,13 +82,20 @@ var Viewer = Widget.extend({
         this.hideTimerActivity = null;
         this.mouseDown = false;
 
+        var self = this;
         if (this.options.defaultFields) {
             this.addField({
                 load: function (field, annotation) {
-                    if (annotation.text) {
-                        $(field).html(Util.escapeHtml(annotation.text));
+                    if (self.options.defaultRenderer) {
+                        var renderer = self.options.defaultRenderer;
+                        var rendered = renderer(annotation.text);
+                        $(field).html(rendered);
                     } else {
-                        $(field).html("<i>" + _t('No Comment') + "</i>");
+                        if (annotation.text) {
+                            $(field).html(Util.escapeHtml(annotation.text));
+                        } else {
+                            $(field).html("<i>" + _t('No Comment') + "</i>");
+                        }
                     }
                 }
             });
@@ -106,8 +113,6 @@ var Viewer = Widget.extend({
         if (typeof this.options.permitDelete !== 'function') {
             throw new TypeError("permitDelete callback must be a function");
         }
-
-        var self = this;
 
         if (this.options.autoViewHighlights) {
             this.document = this.options.autoViewHighlights.ownerDocument;
